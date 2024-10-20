@@ -132,6 +132,7 @@ The project is organized into the following main components:
 ## **Project Structure**
 The project is organized as follows:
 
+```
 dsan-6700-sweetgreen/
 │
 ├── sweetgreen/            # Virtual environment (not tracked in Git)
@@ -152,7 +153,7 @@ dsan-6700-sweetgreen/
 │   └── workflows/
 │       └── ci.yml         # CI workflow for automated testing
 └── discussion.md          # Analysis and discussion of the results
-
+```
 
 ## **Contributing**
 - Fork the repository.
