@@ -32,15 +32,42 @@ The project is organized into the following main components:
     cd yourrepository
     ```
 
-2. **Set up a virtual environment**:
-    ```bash
-    poetry install
-    ```
+2. **Create and activate the virtual environment** named `sweetgreen`:
+   - **For macOS/Linux**:
+     - Create the virtual environment:
+       ```bash
+       python3 -m venv sweetgreen
+       ```
+     - Activate the virtual environment:
+       ```bash
+       source sweetgreen/bin/activate
+       ```
+   - **For Windows**:
+     - Create the virtual environment:
+       ```bash
+       python -m venv sweetgreen
+       ```
+     - Activate the virtual environment:
+       ```bash
+       sweetgreen\Scripts\activate
+       ```
 
-3. **Run the tests**:
+3. **Install dependencies**:
+   - Install all required packages using the `requirements.txt` file:
+     ```bash
+     pip install -r requirements.txt
+     ```
+
+4. **Run the tests**:
     ```bash
     pytest
     ```
+
+5. **Deactivate the virtual environment when done**:
+   - Deactivate the virtual environment by running:
+     ```bash
+     deactivate
+     ```
 
 ## **Planned Features**
 - **Baseline Detection**: Implement a basic MD5 hashing approach for exact duplicate detection.
@@ -54,6 +81,78 @@ The project is organized into the following main components:
   - Submit changes via **pull requests**.
   - Collaborate through **issue tracking** for tasks, bugs, and improvements.
   - Automated testing and CI/CD pipelines using **GitHub Actions**.
+
+### **GitHub Actions Setup**
+1. **Create a GitHub Actions workflow**:
+   - Create a file at `.github/workflows/ci.yml` with the following content:
+     ```yaml
+     name: CI
+
+     on:
+       push:
+         branches:
+           - main
+       pull_request:
+         branches:
+           - main
+
+     jobs:
+       build:
+         runs-on: ubuntu-latest
+
+         steps:
+         - name: Checkout code
+           uses: actions/checkout@v3
+
+         - name: Set up Python
+           uses: actions/setup-python@v4
+           with:
+             python-version: '3.x'
+
+         - name: Install dependencies
+           run: |
+             python -m venv sweetgreen
+             source sweetgreen/bin/activate
+             pip install -r requirements.txt
+
+         - name: Run tests
+           run: |
+             source sweetgreen/bin/activate
+             pytest
+     ```
+
+2. **Commit and push the workflow file**:
+   - Add the workflow file to Git, commit it, and push it to the repository:
+     ```bash
+     git add .github/workflows/ci.yml
+     git commit -m "Add GitHub Actions workflow for CI"
+     git push
+     ```
+
+## **Project Structure**
+The project is organized as follows:
+
+dsan-6700-sweetgreen/
+│
+├── sweetgreen/            # Virtual environment (not tracked in Git)
+├── src/                   # Source code for the project
+│   ├── bloom_filter.py    # Implementation of Bloom Filter
+│   ├── lsh.py             # Implementation of Locality Sensitive Hashing
+│   ├── dedup.py           # Baseline deduplication methods
+│   └── init.py            # Initialization file for the package
+│
+├── tests/                 # Test suite for the project
+│   ├── test_bloom_filter.py
+│   ├── test_lsh.py
+│   └── test_dedup.py
+│
+├── requirements.txt       # Dependencies required for the project
+├── README.md              # Project documentation
+├── .github/               # GitHub Actions configuration
+│   └── workflows/
+│       └── ci.yml         # CI workflow for automated testing
+└── discussion.md          # Analysis and discussion of the results
+
 
 ## **Contributing**
 - Fork the repository.
