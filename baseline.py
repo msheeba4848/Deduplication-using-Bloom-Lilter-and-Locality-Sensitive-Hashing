@@ -1,5 +1,4 @@
 import hashlib
-import os
 
 def calculate_md5(text):
     hash_md5 = hashlib.md5()
