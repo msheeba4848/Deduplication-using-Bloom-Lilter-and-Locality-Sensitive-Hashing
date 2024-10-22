@@ -35,3 +35,4 @@ bf.add("example")
 print(bf.check("example"))  # Should return True
 print(bf.check("other"))    # Might return False or True (false positive possible)
 
+
