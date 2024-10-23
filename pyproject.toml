@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "assignment-2-sweetgreen"
+version = "0.1.0"
+description = "Duplicate Detection Using Bloom Filters and Locality Sensitive Hashing (LSH)"
+authors = ["Isfar Baset, Bella Shi, Sheeba Moghal, Jacky Zhang, Ziyan Di"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
