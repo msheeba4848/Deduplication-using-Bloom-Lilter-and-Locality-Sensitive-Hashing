@@ -6,7 +6,7 @@ on:
       - main  # Run the workflow on every push to the main branch
   pull_request:
     branches:
-      - main  # Run the workflow on pull requests to the main branch
+      - main
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.11'  # Specify the Python version to use
+        python-version: '3.11'  # Update to Python 3.11 to match the project's requirements
 
     - name: Install Poetry
       run: |
@@ -30,19 +30,11 @@ jobs:
       run: |
         poetry install  # Install the package and dependencies
 
-        #This command installs the dependencies specified in pyproject.toml file and locks them in poetry.lock.
-        # It also installs own package in editable mode (-e), allowing it to be used while being developed.
-
     - name: Build documentation with Sphinx
       run: |
-        poetry run sphinx-apidoc -o docs/source .  # Use '.' if source files are in the root
+        poetry run sphinx-apidoc -o docs/source src  # Generate .rst files for the package from the src directory
         poetry run sphinx-build -b html docs/source docs/build 
         poetry run make html --directory docs/
-        
-        #  Converts the .rst files into HTML documentation.
-        # This command builds the HTML documentation from the .rst files in the docs/source directory and places the final documentation in docs/build.
-        #  If  GitHub Actions workflow is using sphinx-apidoc to automatically generate the .rst files, 
-        # then do not need to run ''poetry run sphinx-quickstart docs'' manually
 
     - name: Upload Documentation as Artifact
       uses: actions/upload-artifact@v3
