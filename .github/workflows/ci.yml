@@ -1,33 +1,51 @@
-name: CI
+name: CI  # Name of the workflow
 
 on:
   push:
     branches:
-      - main
+      - main  # Run the workflow on every push to the main branch
   pull_request:
     branches:
-      - main
+      - main  # Run the workflow on pull requests to the main branch
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Define the operating system
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2  # Access the repository
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.9'  # Specify the Python version to use
+
+    - name: Install Poetry
+      run: |
+        pip install poetry  # Install Poetry
+        poetry --version  # Check Poetry version
 
     - name: Install dependencies
       run: |
-        python -m venv sweetgreen
-        source sweetgreen/bin/activate
-        pip install -r requirements.txt
+        poetry install  # Install the package and dependencies
 
-    - name: Run tests
+        #This command installs the dependencies specified in pyproject.toml file and locks them in poetry.lock.
+        # It also installs own package in editable mode (-e), allowing it to be used while being developed.
+
+    - name: Build documentation with Sphinx
       run: |
-        source sweetgreen/bin/activate
-        pytest
+        poetry run sphinx-apidoc -o docs/source src  # Generate .rst files for the package
+        poetry run sphinx-build -b html docs/source docs/build 
+        poetry run make html --directory docs/
+        
+        #  Converts the .rst files into HTML documentation.
+        # This command builds the HTML documentation from the .rst files in the docs/source directory and places the final documentation in docs/build.
+        #  If  GitHub Actions workflow is using sphinx-apidoc to automatically generate the .rst files, 
+        # then do not need to run ''poetry run sphinx-quickstart docs'' manually
+
+    - name: Upload Documentation as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation  # Name of the artifact
+        path: docs/build     # Path to the generated documentation
