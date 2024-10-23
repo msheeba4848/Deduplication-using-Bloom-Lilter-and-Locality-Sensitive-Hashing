@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 murmurhash = "^1.0.10"
 bitarray = "^3.0.0"
+matplotlib = "^3.9.2"
 
 
 [tool.poetry.group.dev.dependencies]
