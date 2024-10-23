@@ -134,25 +134,24 @@ The project is organized as follows:
 
 ```
 dsan-6700-sweetgreen/
-│
-├── sweetgreen/            # Virtual environment (not tracked in Git)
-├── src/                   # Source code for the project
-│   ├── bloom_filter.py    # Implementation of Bloom Filter
-│   ├── lsh.py             # Implementation of Locality Sensitive Hashing
-│   ├── dedup.py           # Baseline deduplication methods
-│   └── init.py            # Initialization file for the package
-│
-├── tests/                 # Test suite for the project
-│   ├── test_bloom_filter.py
-│   ├── test_lsh.py
-│   └── test_dedup.py
-│
-├── requirements.txt       # Dependencies required for the project
-├── README.md              # Project documentation
-├── .github/               # GitHub Actions configuration
-│   └── workflows/
-│       └── ci.yml         # CI workflow for automated testing
-└── discussion.md          # Analysis and discussion of the results
+├── README.md
+├── __pycache__
+│   ├── baseline.cpython-312.pyc
+│   └── bloom_filter.cpython-311.pyc
+├── bloom_filter_example.ipynb
+├── discussion.md
+├── docs
+│   └── source
+├── poetry.lock
+├── pyproject.toml
+├── requirements.txt
+├── src
+│   └── bloom_filter.py
+└── sweetgreen
+    ├── bin
+    ├── include
+    ├── lib
+    └── pyvenv.cfg
 ```
 
 ## **Contributing**
