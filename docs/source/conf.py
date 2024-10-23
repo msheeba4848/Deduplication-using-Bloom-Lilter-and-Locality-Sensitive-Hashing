@@ -17,7 +17,12 @@ author = 'Isfar Baset, Bella Shi, Sheeba Moghal, Jacky Zhang, Ziyan Di'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.napoleon',  # If you want Google-style docstrings
+    # Add other extensions as needed
+]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
