@@ -141,6 +141,7 @@ dsan-6700-sweetgreen/
 ├── bloom_filter_example.ipynb
 ├── discussion.md
 ├── docs
+    ├── bloom_filter_example.ipynb
 │   └── source
 ├── poetry.lock
 ├── pyproject.toml
