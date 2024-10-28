@@ -21,6 +21,16 @@ jobs:
       with:
         python-version: '3.11'  # Update to Python 3.11 to match the project's requirements
 
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/pypoetry  # Poetry's cache directory
+          ~/.cache/pip  # Pip's cache directory, if needed by Poetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+
     - name: Install Poetry
       run: |
         pip install poetry  # Install Poetry
