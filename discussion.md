@@ -22,7 +22,7 @@ We calculated the **Jaccard similarity** between document pairs using both **3-g
 
 To further analyze the similarity between documents, we calculated the **Jaccard similarity** between document pairs using **3-gram** shingling. The distribution of the similarity scores is shown below:
 
-![3-gram Jaccard Similarity Distribution](images/Jaccard Similarity Distribution.png)
+![3-gram Jaccard Similarity Distribution](images/Jaccard_Similarity_Distribution.png)
 
 ### Key Observations:
 - The majority of document pairs have a similarity score between **0.02 and 0.05**, with very few pairs exceeding a similarity of **0.1**.
@@ -33,7 +33,7 @@ To further analyze the similarity between documents, we calculated the **Jaccard
 - Compared to the **4-gram** analysis, the **3-gram** analysis shows a slight increase in the similarity of document pairs. This is expected, as **3-grams** capture smaller text fragments, increasing the chance of overlap between documents.
 
 
-![4-gram Jaccard Similarity Distribution](images/4-gram Jaccard Similarity Distribution.png)
+![4-gram Jaccard Similarity Distribution](images/4-gram_Jaccard_Similarity_Distribution.png)
 
 ### Duplicate Document Detection
 
