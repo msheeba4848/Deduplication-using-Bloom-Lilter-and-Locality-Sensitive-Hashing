@@ -1,0 +1,98 @@
+# Bloom Filter Package
+
+This package provides an implementation of a Bloom Filter, a probabilistic data structure useful for efficiently checking the existence of an item within a dataset. The Bloom Filter package supports multiple hashing methods and allows customization of filter size and number of hash functions. This package is structured to support testing and experimentation with different hash methods.
+
+## Package Structure
+
+```
+.
+├── README.md
+├── __init__.py
+├── __pycache__
+│   └── bloom_filter.cpython-311.pyc
+├── bloom_filter
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   └── bloom_filter.cpython-311.pyc
+│   ├── bin
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-311.pyc
+│   │   │   └── main.cpython-311.pyc
+│   │   └── main.py
+│   ├── bloom_filter.py
+│   ├── data
+│   │   ├── five.tsv
+│   │   ├── hundred.tsv
+│   │   ├── hundredk.tsv
+│   │   ├── onek.tsv
+│   │   ├── tenk.tsv
+│   │   ├── thirty.tsv
+│   │   ├── thirtyk.tsv
+│   │   ├── threehundred.tsv
+│   │   └── threek.tsv
+│   └── utils
+│       ├── __init__.py
+│       └── hashing_methods.py
+├── requirements.txt
+└── tests
+    ├── __init__.py
+    └── test_bloom_filter.py
+
+9 directories, 25 files
+
+```
+
+## Installation
+
+1. **Clone the repository**:  
+   ```bash
+   git clone <repository-url>
+   ```
+
+2. **Navigate to the package directory**
+    ```
+    cd bloom_filter
+    ```
+
+3. **Install dependencies:**
+    ```
+    pip install -r requirements.txt
+
+    ```
+
+## Usage
+
+Run Bloom Filter with Command-Line Interface (CLI)
+
+The main CLI for testing the Bloom Filter can be run as follows:
+
+```bash
+python -m bloom_filter.bin.main --size <SIZE> --hash_count <COUNT> [--jurisdiction] [--optimized] [--universal] --file <DATA_FILE>
+```
+	•	--size: Specify the size of the Bloom Filter.
+	•	--hash_count: Set the number of hash functions.
+	•	--jurisdiction, --optimized, --universal: Choose a specific hashing method.
+	•	--file: Path to the data file to add and check items in the Bloom Filter.
+
+Example:
+
+```bash
+python -m bloom_filter.bin.main --size 200 --hash_count 4 --jurisdiction --file bloom_filter/data/five.tsv
+```
+
+Available Hashing Methods
+
+	1.	Standard Hashing: Multiple hash functions using MurmurHash.
+	2.	Jurisdictional Hashing: Splits the bit array into equal-sized chunks.
+	3.	Kirsch-Mitzenmacher Optimization: Reduces computation by deriving hashes.
+	4.	Universal Hashing: Uses random primes and seeds for hash diversity.
+
+Testing
+
+Run the unit tests with pytest:
+
+```bash
+pytest tests/
+```
