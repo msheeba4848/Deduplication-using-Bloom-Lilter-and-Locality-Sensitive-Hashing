@@ -1,6 +1,6 @@
 # Bloom Filter Package
 
-This package provides an implementation of a Bloom Filter, a probabilistic data structure useful for efficiently checking the existence of an item within a dataset. The Bloom Filter package supports multiple hashing methods and allows customization of filter size and number of hash functions. This package is structured to support testing and experimentation with different hash methods.
+This package provides an implementation of a Bloom Filter, a probabilistic data structure useful for efficiently checking the existence of an item within a dataset. The Bloom Filter package supports multiple hashing methods and allows customization of filter size and the number of hash functions. It is structured to support testing, experimentation, and comparison between standard and improved Bloom Filters.
 
 ## Package Structure
 
@@ -9,6 +9,7 @@ This package provides an implementation of a Bloom Filter, a probabilistic data 
 ├── README.md
 ├── __init__.py
 ├── __pycache__
+│   ├── __init__.cpython-311.pyc
 │   └── bloom_filter.cpython-311.pyc
 ├── bloom_filter
 │   ├── __init__.py
@@ -32,15 +33,19 @@ This package provides an implementation of a Bloom Filter, a probabilistic data 
 │   │   ├── thirtyk.tsv
 │   │   ├── threehundred.tsv
 │   │   └── threek.tsv
+│   ├── pytest.ini
 │   └── utils
 │       ├── __init__.py
 │       └── hashing_methods.py
 ├── requirements.txt
 └── tests
     ├── __init__.py
+    ├── __pycache__
+    │   ├── __init__.cpython-311.pyc
+    │   └── test_bloom_filter.cpython-311-pytest-8.3.3.pyc
     └── test_bloom_filter.py
 
-9 directories, 25 files
+10 directories, 29 files
 
 ```
 
@@ -94,5 +99,6 @@ Testing
 Run the unit tests with pytest:
 
 ```bash
-pytest tests/
+pytest tests/test_bloom_filter.py
 ```
+This runs tests on both standard and optimized Bloom Filter methods to ensure functionality across different hashing techniques.
