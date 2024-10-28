@@ -9,7 +9,7 @@ We analyzed the length of the documents in the dataset and plotted the distribut
 - Most documents have lengths between **2000 and 5000 characters**, with only a few exceeding **10,000 characters**.
 - This distribution suggests that the majority of documents are of moderate length, which can help in determining a suitable size for the bit array in the **Bloom Filter**.
 
-![Document Length Distribution](document_length_distribution.png)
+![Document Length Distribution](images/document_length_distribution.png)
 
 ### Document Similarity Analysis
 
@@ -22,7 +22,7 @@ We calculated the **Jaccard similarity** between document pairs using both **3-g
 
 To further analyze the similarity between documents, we calculated the **Jaccard similarity** between document pairs using **3-gram** shingling. The distribution of the similarity scores is shown below:
 
-![3-gram Jaccard Similarity Distribution](Jaccard Similarity Distribution.png)
+![3-gram Jaccard Similarity Distribution](images/Jaccard Similarity Distribution.png)
 
 ### Key Observations:
 - The majority of document pairs have a similarity score between **0.02 and 0.05**, with very few pairs exceeding a similarity of **0.1**.
@@ -33,7 +33,7 @@ To further analyze the similarity between documents, we calculated the **Jaccard
 - Compared to the **4-gram** analysis, the **3-gram** analysis shows a slight increase in the similarity of document pairs. This is expected, as **3-grams** capture smaller text fragments, increasing the chance of overlap between documents.
 
 
-![4-gram Jaccard Similarity Distribution](4-gram Jaccard Similarity Distribution.png)
+![4-gram Jaccard Similarity Distribution](images/4-gram Jaccard Similarity Distribution.png)
 
 ### Duplicate Document Detection
 
@@ -144,7 +144,7 @@ In this section, we present visualizations that illustrate how varying parameter
 
 The following plot shows how the **false positive rate** changes as we vary the **bit array size (`m`)** in the Bloom Filter for different values of the **number of hash functions (`k`)**.
 
-![Bloom Filter False Positive Rate](bloom_false_positive_rate.png)
+![Bloom Filter False Positive Rate](images/bloom_false_positive_rate.png)
 
 #### Key Insights:
 - **Larger bit array sizes (`m`)** significantly reduce the false positive rate, especially beyond **150,000 bits**.
@@ -154,7 +154,7 @@ The following plot shows how the **false positive rate** changes as we vary the 
 
 The S-curve plot below shows how the probability of matching between documents changes based on their **Jaccard similarity** for different combinations of the **number of rows (`r`)** and **bands (`b`)** in **Locality Sensitive Hashing (LSH)**.
 
-![LSH S-curve Plot](lsh_s_curve.png)
+![LSH S-curve Plot](images/lsh_s_curve.png)
 
 #### Key Insights:
 - **Smaller `r` values** (fewer rows per band) allow LSH to detect low-similarity pairs of documents, but this comes at the cost of potentially matching dissimilar pairs.
