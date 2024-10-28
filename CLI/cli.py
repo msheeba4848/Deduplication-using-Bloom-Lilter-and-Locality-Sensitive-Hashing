@@ -22,10 +22,9 @@ def run_bloom_filter(data_file, size, hash_count, jurisdiction, optimized, unive
     
     # output
     print("Bloom Filter detect duplicate items：")
-    for dup in duplicates:
-        print(dup)
+
     print(f"\nprocessing time: {end_time - start_time:.2f} seconds")
-    print(f"total {len(data_lines)} items， {len(duplicates)} repeated")
+    print(f"total {len(data_lines)} items， {len(duplicates)} duplicated")
 
 # main CLI 
 def main():

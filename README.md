@@ -160,3 +160,51 @@ dsan-6700-sweetgreen/
 - Create a new feature branch.
 - Make your changes.
 - Open a pull request for review.
+
+
+## Instructions to use CLI
+
+This instruction contains two command-line interface (CLI) scripts for detecting duplicates using Bloom Filter and Locality-Sensitive Hashing (LSH).
+
+### 1. Bloom Filter Usage
+
+`cli.py` is the CLI script for Bloom Filter. Run it with the following command:
+
+```bash
+python cli.py bloom hundred.tsv --size 100 --hash_count 3
+```
+
+#### Parameter Explanation
+
+- `hundred.tsv`: Input file containing text data.
+- `--size`: Size of the bit array in the Bloom Filter.
+- `--hash_count`: Number of hash functions to use.
+
+This command uses Bloom Filter to detect duplicates in the `hundred.tsv` file.
+
+---
+
+### 2. LSH Usage
+
+`cli_lsh.py` is the CLI script for Locality-Sensitive Hashing (LSH). Run it with the following command:
+
+```bash
+python cli_lsh.py lsh hundred.tsv --num_hashes 100 --num_bands 20 --rows_per_band 5
+```
+
+#### Parameter Explanation
+
+- `hundred.tsv`: Input file or directory containing text data.
+- `--num_hashes`: Number of hash functions for MinHash signatures.
+- `--num_bands`: Number of bands in LSH.
+- `--rows_per_band`: Number of rows per band.
+
+This command uses LSH to detect near-duplicate documents in `hundred.tsv`.
+
+---
+
+### Notes
+
+Make sure the `hundred.tsv` file is in the same directory as `cli.py` and `cli_lsh.py` so that the commands can correctly read the file data. The above commands assume the default directory configuration.
+
+
