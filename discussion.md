@@ -1,169 +1,171 @@
+
 ## Exploratory Data Analysis (EDA)
 
 To better understand the characteristics of the dataset and provide insights for parameter selection in **Bloom Filter** and **Locality Sensitive Hashing (LSH)**, we performed the following Exploratory Data Analysis (EDA):
 
-### Document Length Distribution
+#### Document Length Distribution
 
 We analyzed the length of the documents in the dataset and plotted the distribution as shown below:
 
 - Most documents have lengths between **2000 and 5000 characters**, with only a few exceeding **10,000 characters**.
 - This distribution suggests that the majority of documents are of moderate length, which can help in determining a suitable size for the bit array in the **Bloom Filter**.
 
-![Document Length Distribution](images/document_length_distribution.png)
+![Document Length Distribution](DSAN-6700 A2 EDA/document_length_distribution.png)
 
-### Document Similarity Analysis
+#### Document Similarity Analysis
 
 We calculated the **Jaccard similarity** between document pairs using both **3-gram** and **4-gram** shingling, and visualized the distribution of similarities. The results are shown below:
 
 - The majority of document pairs have a similarity score between **0.02 and 0.05**, indicating that most documents are not highly similar to each other.
 - Very few document pairs exhibit high similarity, suggesting that the dataset contains diverse content with minimal near-duplicate documents.
 
-### Document Similarity Analysis (3-gram)
+#### Document Similarity Analysis (3-gram)
 
 To further analyze the similarity between documents, we calculated the **Jaccard similarity** between document pairs using **3-gram** shingling. The distribution of the similarity scores is shown below:
 
-![3-gram Jaccard Similarity Distribution](images/Jaccard_Similarity_Distribution.png)
+![3-gram Jaccard Similarity Distribution](DSAN-6700 A2 EDA/Jaccard Similarity Distribution.png)
 
-### Key Observations:
+##### Key Observations:
 - The majority of document pairs have a similarity score between **0.02 and 0.05**, with very few pairs exceeding a similarity of **0.1**.
 - This indicates that most documents in the dataset are **not highly similar** to each other, and there are few near-duplicate documents.
 - The low similarity scores suggest that **Locality Sensitive Hashing (LSH)** should focus on detecting documents with even small degrees of similarity, which informs our parameter selection for LSH.
 
-### Comparison with 4-gram Results:
+#### Comparison with 4-gram Results:
 - Compared to the **4-gram** analysis, the **3-gram** analysis shows a slight increase in the similarity of document pairs. This is expected, as **3-grams** capture smaller text fragments, increasing the chance of overlap between documents.
 
 
-![4-gram Jaccard Similarity Distribution](images/4-gram_Jaccard_Similarity_Distribution.png)
+![4-gram Jaccard Similarity Distribution](DSAN-6700 A2 EDA/4-gram Jaccard Similarity Distribution.png)
 
-### Duplicate Document Detection
+#### Duplicate Document Detection
 
 We also detected fully duplicate documents within the dataset. A total of **3278 duplicate documents** were found, representing approximately **11%** of the entire dataset. This highlights the need for an effective deduplication strategy in further processing.
 
-## Parameter Selection Insights for Bloom Filter and LSH
 
-Based on the exploratory data analysis (EDA) performed on the dataset, the following insights can be derived to guide the parameter selection for **Bloom Filter** and **Locality Sensitive Hashing (LSH)**:
+## Details of Data Engineering Decisions 
 
-### Bloom Filter Parameter Selection
+### Preprocessing - Bloom Filter
 
-The key parameters for the Bloom Filter are:
-1. **Bit Array Size (`m`)**: This defines the number of bits in the bit array.
-2. **Number of Hash Functions (`k`)**: This defines how many hash functions will be applied to each item.
+Typically, a Bloom Filter does not require the same level of preprocessing as algorithms like Locality Sensitive Hashing (LSH). This is because a Bloom Filter is primarily used to check set membership efficiently rather than to compute similarities between items.
 
-#### Insights from the Data:
-1. **Document Length**: Most documents are between **2000 and 5000 characters**, indicating moderately-sized documents with varied content.
-2. **Duplicate Detection**: With **3278 duplicate documents** (~11% of the dataset), the Bloom Filter needs to minimize false positives while handling duplicates.
+### Preprocessing - LSH
 
-#### Parameter Recommendations:
-- **Bit Array Size (`m`)**: We recommend using a bit array size between **150,000 and 350,000** bits, based on the dataset size and the desired false positive rate.
-- **Number of Hash Functions (`k`)**: A value of **7 hash functions** would be optimal, striking a balance between reducing false positives and maintaining computational efficiency.
+1. **Text Normalization**: Converts text to lowercase, removes punctuation, and trims whitespace to ensure uniformity across documents.
 
-### LSH Parameter Selection
-
-The key parameters for **Locality Sensitive Hashing (LSH)** are:
-1. **Number of Hash Functions per Band (`r`)**: The number of rows per band.
-2. **Number of Bands (`b`)**: The number of bands used to hash the document signatures.
-
-#### Insights from the Data:
-- The **Jaccard similarity** distribution shows that most document pairs have a low similarity between **0.02 and 0.05**. This suggests that the LSH algorithm needs to be sensitive to low-similarity pairs.
-
-#### Parameter Recommendations:
-- **Number of Hash Functions per Band (`r`)**: We recommend a smaller number of rows per band, around **2 or 3**, to capture low-similarity document pairs.
-- **Number of Bands (`b`)**: We suggest a larger number of bands, between **15 and 20**, to balance matching precision with the likelihood of finding similar documents.
-
-### Summarized Findings:
-
-#### Bloom Filter:
-- **Optimal `m`**: Between **150,000 and 350,000** bits.
-- **Optimal `k`**: Around **7 hash functions**.
-
-#### LSH:
-- **Optimal `r`**: Between **2 and 3** rows per band.
-- **Optimal `b`**: Between **15 and 20** bands.
+2. **Shingling**: Splits each document into shingles (n-grams) of variable length (3, 5, or 7), based on the document’s length. This step captures overlapping content for similarity comparisons.
 
 
+# Bloom Filter
 
-## Runtime and Memory Usage Analysis for Bloom Filter and LSH
+## Introduction
+A Bloom Filter is a probabilistic data structure designed to perform efficient membership checks, allowing us to test whether an element is part of a set. While Bloom Filters can offer a compact and quick way to check for set membership, they come with a small risk of false positives. These trade-offs make Bloom Filters useful in applications where memory efficiency is important and occasional false positives are acceptable.
 
-We analyzed and measured the runtime and memory usage for both **Bloom Filter** and **Locality Sensitive Hashing (LSH)** across different dataset sizes (300, 1000, 10,000, and 100,000 documents). The results provide insights into the scalability and efficiency of both methods as the dataset grows.
+## How It Works
+A Bloom Filter consists of a bit array and several independent hash functions. When adding an element, each hash function maps the element to a position in the bit array, which is then set to 1. To check if an element is present, we apply the same hash functions and check if all corresponding bits are set to 1. If they are, the element might be in the set; if not, we know for certain it’s not.
 
-### Bloom Filter Runtime Analysis
+## Details of Bloom Filter Implementation
+Our implementation explores four variations of the Bloom Filter, In this implementation, we used a Bloom Filter with a bit array size of 1,000,000 and 5 hash functions. each with a distinct approach to managing false positives and lookup time.
 
-The runtime for both **insertion** and **query** operations was measured for different dataset sizes.
+### Standard Bloom Filter
+False Positive Rate: 10.85%
+Time Taken for Lookups: 9.87 seconds
+The Standard Bloom Filter provides a balance between simplicity and performance, using multiple hash functions to set bits across the bit array. Although it has a moderate false positive rate, it is relatively fast, making it suitable for general use cases where neither extremely low false positives nor the fastest speed is a critical requirement.
 
-#### Results:
+### Jurisdictional Bloom Filter
+False Positive Rate: 10.87%
+Time Taken for Lookups: 10.51 seconds
+Analysis: The jurisdictional approach divides the bit array into distinct chunks, restricting each hash function’s values to a specific chunk. This structure resulted in the highest false positive rate among the methods tested. By limiting the hash values to specific segments, there is an increase in overlap within each chunk, reducing the independent space available for each hash value and thus raising the likelihood of false positives. The lookup time, while slower than the optimized method, was faster than universal hashing, due to the additional complexity introduced by chunking.
 
-| Dataset Size | Insertion Time (seconds) | Query Time (seconds) |
-|--------------|--------------------------|----------------------|
-| 300          | 0.0185                   | 0.0180               |
-| 1000         | 0.0572                   | 0.0649               |
-| 10000        | 0.5805                   | 0.5735               |
-| 100000       | --                       | --                   |
 
-#### Key Observations:
-- The Bloom Filter exhibits **excellent performance** with small datasets, with both insertion and query times remaining under **1 second** even for datasets up to **10,000 documents**.
-- As the dataset size grows, the insertion and query times scale almost **linearly** with the number of documents, showing that Bloom Filter is well-suited for larger datasets.
+### Optimized Bloom Filter (Kirsch-Mitzenmacher Optimization)
+False Positive Rate: 10.85%
+Time Taken for Lookups: 9.13 seconds
+Analysis: The Kirsch-Mitzenmacher optimization achieves similar false positive rates to the Standard Bloom Filter by deriving multiple hash values from only two hash functions. This method allows for faster lookups, taking only 9.13 seconds, as it reduces the computational load involved in generating hash values.
 
-### LSH Runtime and Memory Usage Analysis
+Conclusion: The optimized Bloom Filter is ideal for scenarios prioritizing speed without compromising false positive rates. However, it does not significantly reduce the false positives compared to the jurisdictional approach, making it most suitable where lookup speed is crucial.
 
-Both runtime and memory usage were measured for **LSH** across different dataset sizes, analyzing **insertion time**, **query time**, and **peak memory usage**.
+### Universal Bloom Filter
+False Positive Rate: 0.95%
+Time Taken for Lookups: 12.32 seconds
+Analysis: The Universal Bloom Filter demonstrates a significant reduction in the false positive rate, achieving a rate as low as 0.95%. This method uses random primes and seeds to generate hash values, providing better distribution and reducing overlaps in the bit array. The improved accuracy, however, comes at the cost of lookup speed, with the Universal Bloom Filter taking the longest time at 12.32 seconds. The added complexity in generating hash values slows down the lookups.
 
-#### Results:
+Conclusion: Universal hashing is highly effective for applications where minimizing false positives is essential, even if lookup speed is sacrificed. It offers the best trade-off for accuracy-critical tasks but is less suited to scenarios where time efficiency is necessary.
 
-| Dataset Size | Insertion Time (seconds) | Query Time (seconds) | Peak Memory Usage (MB) |
-|--------------|--------------------------|----------------------|------------------------|
-| 300          | 5.1114                   | 0.0997               | 59.89 MB               |
-| 1000         | 16.6107                  | 1.1519               | 72.11 MB               |
-| 10000        | 171.9551                 | 143.0207             | 610.09 MB              |
-| 100000       | 521.6969                 | 1498.9935            | 225.19 MB              |
 
-#### Key Observations:
-- **Insertion Time**: The insertion time for LSH increases significantly with dataset size, from **5.11 seconds** for 300 documents to over **521 seconds** for 100,000 documents. This suggests that LSH is computationally expensive when scaling to larger datasets.
-- **Query Time**: Similar to the insertion time, the query time grows substantially as the dataset increases, reaching **1498.99 seconds** (about **25 minutes**) for 100,000 documents.
-- **Memory Usage**: Memory usage for LSH grows with the dataset size, reaching its peak at **610.09 MB** for 10,000 documents but dropping slightly to **225.19 MB** for 100,000 documents. The peak memory usage is not linear, which could be due to the internal optimizations of LSH.
+# LSH Filter
 
-### Comparison of Bloom Filter and LSH
+## Introduction 
 
-| Dataset Size | Bloom Filter Insertion Time (s) | Bloom Filter Query Time (s) | LSH Insertion Time (s) | LSH Query Time (s) | LSH Peak Memory (MB) |
-|--------------|---------------------------------|-----------------------------|------------------------|--------------------|----------------------|
-| 300          | 0.0185                          | 0.0180                      | 5.1114                 | 0.0997             | 59.89                |
-| 1000         | 0.0572                          | 0.0649                      | 16.6107                | 1.1519             | 72.11                |
-| 10000        | 0.5805                          | 0.5735                      | 171.9551               | 143.0207           | 610.09               |
-| 100000       | --                              | --                          | 521.6969               | 1498.9935          | 225.19               |
+Locality Sensitive Hashing (LSH) is a method for efficiently finding similar items in large, high-dimensional datasets. It’s particularly useful for near-duplicate detection, as it reduces computational complexity by grouping similar items into the same hash "buckets." Unlike traditional hashing, LSH is designed to maximize the chance that similar items have similar hash values, allowing quick, approximate nearest-neighbor searches without exhaustive comparisons.
 
-#### Key Insights:
-- **Bloom Filter** demonstrates much faster performance than LSH, especially in terms of both insertion and query time. Bloom Filter also scales more gracefully as the dataset size increases, remaining efficient even for **10,000 documents**.
-- **LSH**, on the other hand , becomes increasingly computationally expensive as dataset size grows, both in terms of runtime and memory usage. It remains useful for **similarity detection**, but performance optimizations may be necessary when handling larger datasets, particularly those with more than **10,000 documents**.
+## How it works
+Locality Sensitive Hashing (LSH) is a method for efficiently finding similar items in large, high-dimensional datasets. It’s particularly useful for near-duplicate detection, as it reduces computational complexity by grouping similar items into the same hash "buckets." Unlike traditional hashing, LSH is designed to maximize the chance that similar items have similar hash values, allowing quick, approximate nearest-neighbor searches without exhaustive comparisons.
+
+#### Details of LSH Implementation 
+
+##### Regular Version
+- The baseline LSH implementation utilized MinHashing to generate signatures for documents and applied the banding technique to identify candidate pairs likely to be duplicates. Union-Find was employed to cluster these candidates.
+
+##### Improvements Explored
+1. **Multi-Probe LSH**:
+   - This improvement involved probing multiple similar hash values to increase recall when identifying candidate pairs. The impact on performance was analyzed through experiments.
+
+2. **Adaptive Shingle Size**:
+   - We experimented with adjusting the shingle size based on document length, which improved the accuracy of similarity detection for both short and long documents.
+
+3. **Parallel Processing**:
+   - For the optimized version, we implemented parallel processing using `ThreadPoolExecutor`, significantly improving the speed of the MinHash and LSH computations.
+
+
+#### Testing 
+
+This script tests three LSH implementations (**Original**, **Improved**, and **Optimized**) for finding near-duplicate documents, measuring performance and memory usage. For each implementation, it runs the function lsh_near_duplicates_from_files, tracks runtime and peak memory, and writes results to a performance.txt file. It also saves clusters (groups of similar documents) to separate text files for each implementation. Finally, it prints a summary to the console, allowing for easy comparison of the implementations' efficiency.
 
 
 
-## Visualizations for Bloom Filter and LSH
+## Performance And Results
 
-In this section, we present visualizations that illustrate how varying parameters affect the **false positive rate for Bloom Filter** and the **S-curve for LSH**. These visualizations help in understanding the relationship between parameter choices and the performance of these techniques.
+### Bloom Filter - Overall Analysis 
 
-### Bloom Filter: False Positive Rate vs. Bit Array Size
+| Bloom Filter Type                          | False Positive Rate | Lookup Time (seconds) |
+|--------------------------------------------|----------------------|------------------------|
+| Standard Bloom Filter                      | 10.85%              | 9.87                  |
+| Jurisdictional Bloom Filter                | 10.87%              | 10.51                 |
+| Optimized Bloom Filter (Kirsch-Mitzenmacher) | 10.85%              | 9.13                  |
+| Universal Bloom Filter                     | 0.95%               | 12.32                 |
 
-The following plot shows how the **false positive rate** changes as we vary the **bit array size (`m`)** in the Bloom Filter for different values of the **number of hash functions (`k`)**.
+-Viz
 
-![Bloom Filter False Positive Rate](images/bloom_false_positive_rate.png)
 
-#### Key Insights:
-- **Larger bit array sizes (`m`)** significantly reduce the false positive rate, especially beyond **150,000 bits**.
-- For a fixed bit array size, increasing the number of hash functions (`k`) from **5 to 7 to 10** reduces the false positive rate. However, diminishing returns are observed after a certain point.
 
-### LSH: S-curve for Different `r` and `b` Values
+### LSH - Overall Analysis
 
-The S-curve plot below shows how the probability of matching between documents changes based on their **Jaccard similarity** for different combinations of the **number of rows (`r`)** and **bands (`b`)** in **Locality Sensitive Hashing (LSH)**.
+| Implementation   | Size | Runtime (seconds) | Peak Memory Usage (MB) | Average Jaccard Similarity |
+|------------------|------|-------------------|-------------------------|----------------------------|
+| Original LSH     | 100  | 82.74            | 1.82                    | 0.77                       |
+| Improved LSH     | 100  | 72.30            | 8.88                    | 0.63                       |
+| Optimized LSH    | 100  | 70.40            | 8.84                    | 0.94                       |
 
-![LSH S-curve Plot](images/lsh_s_curve.png)
 
-#### Key Insights:
-- **Smaller `r` values** (fewer rows per band) allow LSH to detect low-similarity pairs of documents, but this comes at the cost of potentially matching dissimilar pairs.
-- **Larger `b` values** (more bands) make the LSH algorithm more selective, ensuring that only highly similar documents are matched.
-- The parameter combination of **`r = 3` and `b = 15`** offers a good balance between sensitivity and precision, capturing medium-similarity documents without too many false positives.
+In terms of the visualisations, which showcase the same info
 
-### Summary of Visualizations
+![Jaccard Similarity Distribution](results/jaccard_similarity_comparison.png)
+![Memory Usage](results/memory_usage_comparison.png)
+![Runtime Comparison](results/runtime_comparison.png)
 
-- The **false positive rate for Bloom Filter** is primarily influenced by the **size of the bit array (`m`)** and the **number of hash functions (`k`)**. Larger bit arrays and more hash functions lead to lower false positive rates, but with increasing memory and computational costs.
-- The **S-curve for LSH** demonstrates that adjusting the parameters **`r` and `b`** allows fine-tuning of the algorithm's sensitivity to document similarity. By selecting appropriate values of `r` and `b`, LSH can be optimized for different levels of similarity detection, depending on the specific application requirements.
 
+We can see that the Optimised LSH performs the best and has higher Average Jaccard Similarity.
+
+## Challenges Enountered 
+
+
+### Bloom Filter 
+
+Developing this Bloom Filter package brought valuable lessons in efficient data structure design and memory management. One key challenge was fine-tuning the hashing methods to balance speed and accuracy across large datasets. Experimenting with various hashing approaches highlighted the trade-offs between computational cost and collision reduction.
+Conclusion: Jurisdictional hashing, while an innovative approach, does not significantly improve false positives and adds complexity to the lookups. It may not be suitable for applications requiring low false positives, as it increases the probability of overlap.
+
+
+### LSH 
+
+
+Using Locality Sensitive Hashing (LSH) for near-duplicate detection involves balancing speed, accuracy, and memory usage. Key challenges include tuning parameters like hash functions, bands, and rows to reduce false positives and negatives while managing memory-intensive hash buckets and minhash signatures. Choosing the optimal shingle size is also critical, as it affects similarity detection. Additionally, balancing accuracy with performance remains complex, as LSH’s approximation can lead to missed duplicates or unrelated documents being grouped together. But we see that the the optimised version of the LSH performs the best.
 
