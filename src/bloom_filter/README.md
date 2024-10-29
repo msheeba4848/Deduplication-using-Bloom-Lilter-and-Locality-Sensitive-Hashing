@@ -80,6 +80,49 @@ Example:
 PYTHONPATH=$(pwd) python -m bloom_filter.bin.main --size 200 --hash_count 4 --jurisdiction --file ../../data/five.tsv
 ```
 
+The output looks like this:
+
+```(sweetgreen) (base) isfarbaset@Isfars-MacBook-Air bloom_filter % PYTHONPATH=$(pwd) python -m bloom_filter.bin.main --size 200 --hash_count 4 --jurisdiction --file ../../data/five.tsv
+
+Initialized Bloom Filter with size 200 and 4 hash functions.
+Adding items from ../../data/five.tsv to Bloom Filter...
+Adding item 'https://git-lfs.github.com/spec/v1' with hashes: [14, 76, 147, 176]
+Added item: https://git-lfs.github.com/spec/v1
+Adding item 'sha256:43a123206c0c1bb9e1e2b31f327536d2072a40c525b1fffbfe97d872aacdaee9' with hashes: [14, 79, 115, 150]
+Added item: sha256:43a123206c0c1bb9e1e2b31f327536d2072a40c525b1fffbfe97d872aacdaee9
+Adding item '134' with hashes: [33, 67, 117, 158]
+Added item: 134
+
+Finished adding items.
+```
+for checking membership:
+
+```bash
+PYTHONPATH=$(pwd) python -m bloom_filter.bin.main --size 200 --hash_count 4 --jurisdiction --file ../../data/five.tsv --check "item1" "item2"
+```
+
+The checking output looks like this:
+
+```
+(sweetgreen) (base) isfarbaset@Isfars-MacBook-Air bloom_filter % PYTHONPATH=$(pwd) python -m bloom_filter.bin.main --size 200 --hash_count 4 --jurisdiction --file ../../data/five.tsv --check "item1" "item2"
+Initialized Bloom Filter with size 200 and 4 hash functions.
+Adding items from ../../data/five.tsv to Bloom Filter...
+Adding item 'https://git-lfs.github.com/spec/v1' with hashes: [14, 76, 147, 176]
+Added item: https://git-lfs.github.com/spec/v1
+Adding item 'sha256:43a123206c0c1bb9e1e2b31f327536d2072a40c525b1fffbfe97d872aacdaee9' with hashes: [14, 79, 115, 150]
+Added item: sha256:43a123206c0c1bb9e1e2b31f327536d2072a40c525b1fffbfe97d872aacdaee9
+Adding item '134' with hashes: [33, 67, 117, 158]
+Added item: 134
+
+Finished adding items.
+
+Checking membership for specified items:
+Checking item 'item1' with hashes: [41, 66, 138, 171]
+Item 'item1' is in the Bloom Filter: False
+Checking item 'item2' with hashes: [33, 79, 113, 185]
+Item 'item2' is in the Bloom Filter: False
+```
+
 Available Hashing Methods
 
 	1.	Standard Hashing: Multiple hash functions using MurmurHash.
@@ -94,6 +137,38 @@ Run the unit tests with pytest:
 ```bash
 PYTHONPATH=$(pwd) pytest tests/test_bloom_filter.py
 ```
+
+The output looks like this:
+
+```
+(sweetgreen) (base) isfarbaset@Isfars-MacBook-Air assignment-2-sweetgreen % git pull
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 3 (delta 2), reused 3 (delta 2), pack-reused 0 (from 0)
+Unpacking objects: 100% (3/3), 1.77 KiB | 302.00 KiB/s, done.
+From https://github.com/DSAN6700-24Fall/assignment-2-sweetgreen
+   75104a66..70702052  main       -> origin/main
+Updating 75104a66..70702052
+Fast-forward
+ README.md | 395 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++------------------------------------------------------------------------------------------------
+ 1 file changed, 209 insertions(+), 186 deletions(-)
+(sweetgreen) (base) isfarbaset@Isfars-MacBook-Air assignment-2-sweetgreen % cd src
+(sweetgreen) (base) isfarbaset@Isfars-MacBook-Air src % cd bloom_filter
+(sweetgreen) (base) isfarbaset@Isfars-MacBook-Air bloom_filter % PYTHONPATH=$(pwd) pytest tests/test_bloom_filter.py
+==================================================================================================== test session starts =====================================================================================================
+platform darwin -- Python 3.11.5, pytest-8.3.3, pluggy-1.5.0
+rootdir: /Users/isfarbaset/Desktop/IB-DS/dsan-courses/dsan-6700/assignment-2-sweetgreen
+configfile: pyproject.toml
+collected 4 items                                                                                                                                                                                                            
+
+tests/test_bloom_filter.py ....                                                                                                                                                                                        [100%]
+
+===================================================================================================== 4 passed in 0.01s ======================================================================================================
+(sweetgreen) (base) isfarbaset@Isfars-MacBook-Air bloom_filter % 
+
+```
+
 This runs tests on both standard and optimized Bloom Filter methods to ensure functionality across different hashing techniques.
 
 ## Lessons Learned and Challenges
