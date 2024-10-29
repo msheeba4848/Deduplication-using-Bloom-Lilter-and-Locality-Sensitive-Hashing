@@ -175,6 +175,7 @@ The optimized version includes further enhancements:
 
 ### Bloom Filter
 
+For testing, we use
 
 
 ### LSH 
@@ -260,8 +261,17 @@ PYTHONPATH=$(pwd) python src/lsh_cli.py nearest_neighbors --path data/hundred.ts
 PYTHONPATH=$(pwd) python src/lsh_cli.py nearest_neighbors --path data/hundred.tsv --query_doc data/query_doc.txt --algorithm optimized --num_hashes 100 --num_bands 20 --rows_per_band 5
 
 ```
+## Final Outputs
+
+### Bloom Filter 
+
+
+### LSH 
 
 ---
+
+## Lessons Learnt 
+
 
 ---
 
