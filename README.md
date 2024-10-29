@@ -300,6 +300,13 @@ The optimized version includes further enhancements: - **Parallelized Execution*
 
 ## Testing
 
+### MD5
+
+```{bash}
+pytest test/MD5-test.py
+pytest test/md5-imp-test.py
+```
+
 ### Bloom Filter
 
 ``` bash
