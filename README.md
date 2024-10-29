@@ -185,45 +185,6 @@ This enhanced version builds on the baseline by incorporating:
 
 This package provides an implementation of a Bloom Filter, a probabilistic data structure useful for efficiently checking the existence of an item within a dataset. The Bloom Filter package supports multiple hashing methods and allows customization of filter size and the number of hash functions. It is structured to support testing, experimentation, and comparison between standard and improved Bloom Filters.
 
-### Package Structure
-
-```         
-.
-├── README.md
-├── __init__.py
-├── __pycache__
-│   ├── __init__.cpython-311.pyc
-│   └── bloom_filter.cpython-311.pyc
-├── bloom_filter
-│   ├── __init__.py
-│   ├── __pycache__
-│   │   ├── __init__.cpython-311.pyc
-│   │   └── bloom_filter.cpython-311.pyc
-│   ├── bin
-│   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   │   ├── __init__.cpython-311.pyc
-│   │   │   └── main.cpython-311.pyc
-│   │   └── main.py
-│   ├── bloom_filter.py
-│   ├── pytest.ini
-│   └── utils
-│       ├── __init__.py
-│       ├── __pycache__
-│       │   ├── __init__.cpython-311.pyc
-│       │   └── hashing_methods.cpython-311.pyc
-│       └── hashing_methods.py
-├── requirements.txt
-└── tests
-    ├── __init__.py
-    ├── __pycache__
-    │   ├── __init__.cpython-311.pyc
-    │   └── test_bloom_filter.cpython-311-pytest-8.3.3.pyc
-    └── test_bloom_filter.py
-
-10 directories, 22 files
-```
-
 ### Installation
 
 1.  **Clone the repository**:
@@ -403,9 +364,14 @@ PYTHONPATH=$(pwd) python src/lsh_cli.py nearest_neighbors --path data/hundred.ts
 
 ### LSH
 
+In terms of the performance results from `discussion.md`, we highlight that each LSH implementation offers distinct trade-offs in runtime, memory usage, and accuracy. The Original LSH is the most memory-efficient, using only 1.82 MB, but it is the slowest with a runtime of 82.74 seconds. Its accuracy, measured by an average Jaccard similarity of 0.77, is moderate, making it suitable for smaller datasets where memory efficiency is critical. The Improved LSH reduces runtime to 72.30 seconds but at the cost of increased memory usage (8.88 MB) and a lower Jaccard similarity score of 0.63, indicating it may be less effective in identifying near-duplicates. Finally, the Optimized LSH achieves the best balance, with the fastest runtime at 70.40 seconds, a high Jaccard similarity of 0.94, and memory usage comparable to the Improved LSH at 8.84 MB. Overall, the Optimized LSH provides the highest accuracy and best runtime performance, making it the most effective option for larger datasets where accuracy and speed are prioritized.
+
 ------------------------------------------------------------------------
 
 ## Lessons Learnt
+
+The overall lesson learned from deduplication using LSH and Bloom filters is the importance of balancing efficiency with accuracy in large-scale data environments. Both methods excel at quickly identifying potential duplicates without requiring exhaustive pairwise comparisons, making them highly effective for large datasets. LSH is advantageous for approximate nearest-neighbor searches, grouping similar items by hashing them into buckets and detecting near-duplicates based on similarities. However, its trade-offs include potential false positives or negatives, which depend on fine-tuning parameters like hash functions and banding configurations. On the other hand, Bloom filters offer a fast, memory-efficient solution for checking whether an item exists in a set, which can be used to reduce the dataset size before applying more computationally intensive methods. Yet, Bloom filters are probabilistic, meaning they can yield false positives but not false negatives, and they work best in filtering rather than ranking similarity. Together, these methods demonstrate that efficient deduplication requires not only robust techniques but also careful consideration of data characteristics and trade-offs between memory, speed, and accuracy.
+
 
 ------------------------------------------------------------------------
 
