@@ -1,4 +1,5 @@
 import os
+import re
 import random
 import itertools
 
@@ -50,16 +51,6 @@ class LSH:
                         candidate_pairs.add(pair)
         return candidate_pairs
 
-    def find_candidates_for_query(self, query_signature):
-        """Find candidate pairs for a query signature."""
-        candidate_pairs = set()
-        for i in range(self.num_bands):
-            band = tuple(query_signature[i * self.rows_per_band:(i + 1) * self.rows_per_band])
-            if band in self.buckets[i]:
-                for candidate in self.buckets[i][band]:
-                    candidate_pairs.add(('query', candidate))
-        return candidate_pairs
-
 class UnionFind:
     def __init__(self, elements):
         self.parent = {x: x for x in elements}
@@ -82,46 +73,35 @@ class UnionFind:
                 self.parent[rootY] = rootX
                 self.rank[rootX] += 1
 
+def preprocess_text(text):
+    """Convert text to lowercase, remove punctuation, and strip whitespace."""
+    text = text.lower()
+    text = re.sub(r'[^\w\s]', '', text)
+    return text.strip()
+
 def read_documents_from_directory(path):
-    """Reads all text files in a directory or a single file and returns their content."""
+    """Reads all text files in a directory or a single file and returns their content after preprocessing."""
     documents = {}
 
+    # If `path` is a directory, iterate through all `.txt` files in the directory.
     if os.path.isdir(path):
         for filename in os.listdir(path):
             if filename.endswith(".txt"):
                 with open(os.path.join(path, filename), 'r', encoding='utf-8') as file:
-                    documents[filename] = file.read()
+                    documents[filename] = preprocess_text(file.read())
 
+    # If `path` is a file, read directly from the file.
     elif os.path.isfile(path):
         with open(path, 'r', encoding='utf-8') as file:
             for idx, line in enumerate(file):
-                documents[f"doc_{idx}"] = line.strip()
+                documents[f"doc_{idx}"] = preprocess_text(line.strip())
     else:
         raise ValueError("The provided path is neither a directory nor a file.")
 
     return documents
 
-def lsh_nearest_neighbor(query_doc, path, num_hashes=100, num_bands=20, rows_per_band=5):
-    # Read documents and initialize MinHash and LSH
-    documents = read_documents_from_directory(path)
-    minhash = MinHash(num_hashes)
-    lsh = LSH(num_bands, rows_per_band)
-
-    # Create signatures and apply LSH for all documents
-    signatures = {doc_id: minhash.create_signature(doc) for doc_id, doc in documents.items()}
-    for doc_id, signature in signatures.items():
-        lsh.hash_signature(doc_id, signature)
-
-    # Transform query document into a signature and find candidate pairs
-    query_signature = minhash.create_signature(query_doc)
-    candidate_pairs = lsh.find_candidates_for_query(query_signature)
-    
-    # Extract nearest neighbors from candidate pairs
-    nearest_neighbors = [pair[1] for pair in candidate_pairs if pair[0] == 'query']
-    return nearest_neighbors
-
 def lsh_near_duplicates_from_files(path, num_hashes=100, num_bands=20, rows_per_band=5):
-    # Read documents from the directory or file
+    # Read and preprocess documents from the directory or file
     documents = read_documents_from_directory(path)
 
     # Initialize MinHash and LSH

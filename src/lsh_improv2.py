@@ -1,27 +1,46 @@
 import os
+import re
 import random
 import itertools
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
+
+PRIME_MODULUS = 4294967311  # Large prime for MinHash modulus
+
+# Text Preprocessing function
+def preprocess_text(text):
+    # Convert to lowercase
+    text = text.lower()
+    # Remove punctuation
+    text = re.sub(r'[^\w\s]', '', text)
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    return text
 
 class MinHash:
     def __init__(self, num_hashes):
         self.num_hashes = num_hashes
         self.hash_funcs = self._generate_hash_funcs(num_hashes)
+        self.cache = {}
 
     def _generate_hash_funcs(self, num_hashes):
         hash_funcs = []
         for i in range(num_hashes):
             a, b = random.randint(1, 100), random.randint(1, 100)
-            hash_funcs.append(lambda x, a=a, b=b: (a * hash(x) + b) % 2**32)
+            hash_funcs.append(lambda x, a=a, b=b: (a * hash(x) + b) % PRIME_MODULUS)
         return hash_funcs
 
     def create_signature(self, document):
         signature = []
         shingles = self._get_shingles(document)
         for hash_func in self.hash_funcs:
-            min_hash = min(hash_func(shingle) for shingle in shingles)
+            min_hash = min(self._hash_shingle(shingle, hash_func) for shingle in shingles)
             signature.append(min_hash)
         return signature
+
+    @lru_cache(maxsize=None)
+    def _hash_shingle(self, shingle, hash_func):
+        return hash_func(shingle)
 
     def _get_shingles(self, document):
         """Generate k-shingles for the document with adaptive shingle size based on length."""
@@ -33,7 +52,7 @@ class LSH:
     def __init__(self, num_bands, rows_per_band, probes=3):
         self.num_bands = num_bands
         self.rows_per_band = rows_per_band
-        self.probes = probes
+        self.probes = probes  # Number of additional probes for multi-probe LSH
         self.buckets = [{} for _ in range(num_bands)]
 
     def _generate_probes(self, band_hash):
@@ -44,35 +63,31 @@ class LSH:
         """Hash signature into buckets using multi-probe banding."""
         for i in range(self.num_bands):
             band = tuple(signature[i * self.rows_per_band:(i + 1) * self.rows_per_band])
-            probe_bands = self._generate_probes(band)
+            probe_bands = self._generate_probes(band)  # Generate probe variants
 
+            # Insert doc_id into each probe bucket
             for probe in probe_bands:
                 if probe not in self.buckets[i]:
                     self.buckets[i][probe] = []
                 self.buckets[i][probe].append(doc_id)
 
     def find_candidates(self):
-        """Return candidate pairs from buckets."""
+        """Return candidate pairs from buckets using multi-threaded aggregation."""
         candidate_pairs = set()
-        for band_buckets in self.buckets:
-            for bucket in band_buckets.values():
-                if len(bucket) > 1:
-                    for pair in itertools.combinations(bucket, 2):
-                        candidate_pairs.add(pair)
+        with ThreadPoolExecutor() as executor:
+            for band_buckets in self.buckets:
+                future_pairs = executor.submit(self._collect_candidate_pairs, band_buckets)
+                candidate_pairs.update(future_pairs.result())
         return candidate_pairs
 
-    def find_candidates_for_query(self, query_signature):
-        """Find candidate pairs for a query signature using multi-probe banding."""
-        candidate_pairs = set()
-        for i in range(self.num_bands):
-            band = tuple(query_signature[i * self.rows_per_band:(i + 1) * self.rows_per_band])
-            probe_bands = self._generate_probes(band)
-
-            for probe in probe_bands:
-                if probe in self.buckets[i]:
-                    for candidate in self.buckets[i][probe]:
-                        candidate_pairs.add(('query', candidate))
-        return candidate_pairs
+    def _collect_candidate_pairs(self, band_buckets):
+        """Collect candidate pairs for each bucket in a band."""
+        pairs = set()
+        for bucket in band_buckets.values():
+            if len(bucket) > 1:
+                for pair in itertools.combinations(bucket, 2):
+                    pairs.add(pair)
+        return pairs
 
 class UnionFind:
     def __init__(self, elements):
@@ -97,66 +112,44 @@ class UnionFind:
                 self.rank[rootX] += 1
 
 def read_documents_from_directory(path):
-    """Reads all text files in a directory or a single file and returns their content."""
+    """Reads all text files in a directory or a single file and returns their content after preprocessing."""
     documents = {}
 
     if os.path.isdir(path):
         for filename in os.listdir(path):
             if filename.endswith(".txt"):
                 with open(os.path.join(path, filename), 'r', encoding='utf-8') as file:
-                    documents[filename] = file.read()
+                    documents[filename] = preprocess_text(file.read())
 
     elif os.path.isfile(path):
         with open(path, 'r', encoding='utf-8') as file:
             for idx, line in enumerate(file):
-                documents[f"doc_{idx}"] = line.strip()
+                documents[f"doc_{idx}"] = preprocess_text(line.strip())
     else:
         raise ValueError("The provided path is neither a directory nor a file.")
 
     return documents
 
-def lsh_optimized_nearest_neighbor(query_doc, path, num_hashes=100, num_bands=20, rows_per_band=5):
-    """Optimized LSH for finding nearest neighbors of a query document."""
+def lsh_near_duplicates_from_files(path, num_hashes=100, num_bands=20, rows_per_band=5):
     documents = read_documents_from_directory(path)
     minhash = MinHash(num_hashes)
-    lsh = LSH(num_bands, rows_per_band, probes=3)
-
-    # Create signatures and apply LSH for all documents
-    signatures = {doc_id: minhash.create_signature(doc) for doc_id, doc in documents.items()}
-    for doc_id, signature in signatures.items():
-        lsh.hash_signature(doc_id, signature)
-
-    # Transform query document and get candidate pairs with optimizations
-    query_signature = minhash.create_signature(query_doc)
-    candidate_pairs = lsh.find_candidates_for_query(query_signature)
-    
-    # Extract nearest neighbors from candidate pairs
-    nearest_neighbors = [pair[1] for pair in candidate_pairs if pair[0] == 'query']
-    return nearest_neighbors
-
-def lsh_optimized_near_duplicates_from_files(path, num_hashes=100, num_bands=20, rows_per_band=5):
-    """Optimized LSH for detecting near-duplicate documents."""
-    documents = read_documents_from_directory(path)
-    minhash = MinHash(num_hashes)
-    lsh = LSH(num_bands, rows_per_band, probes=3)
+    lsh = LSH(num_bands, rows_per_band)
 
     # Parallelize signature creation
     with ThreadPoolExecutor() as executor:
         signatures = {doc_id: sig for doc_id, sig in zip(documents.keys(), executor.map(minhash.create_signature, documents.values()))}
 
-    # Parallelize LSH insertion
-    with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(lsh.hash_signature, doc_id, signature) for doc_id, signature in signatures.items()]
-        for future in futures:
-            future.result()
+    # Insert signatures into LSH buckets
+    for doc_id, signature in signatures.items():
+        lsh.hash_signature(doc_id, signature)
 
-    # Get candidate pairs and perform Union-Find clustering
+    # Get candidate pairs and perform Union-Find
     candidate_pairs = lsh.find_candidates()
     uf = UnionFind(signatures.keys())
     for doc_id1, doc_id2 in candidate_pairs:
         uf.union(doc_id1, doc_id2)
 
-    # Organize clusters of near-duplicate documents
+    # Return clusters (groups of near-duplicate documents)
     clusters = {}
     for doc_id in signatures:
         root = uf.find(doc_id)

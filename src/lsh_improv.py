@@ -1,7 +1,18 @@
 import os
+import re
 import random
 import itertools
 from concurrent.futures import ThreadPoolExecutor
+
+# Text Preprocessing function
+def preprocess_text(text):
+    # Convert to lowercase
+    text = text.lower()
+    # Remove punctuation
+    text = re.sub(r'[^\w\s]', '', text)
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    return text
 
 class MinHash:
     def __init__(self, num_hashes):
@@ -62,19 +73,6 @@ class LSH:
                         candidate_pairs.add(pair)
         return candidate_pairs
 
-    def find_candidates_for_query(self, query_signature):
-        """Find candidate pairs for a query signature using multi-probe banding."""
-        candidate_pairs = set()
-        for i in range(self.num_bands):
-            band = tuple(query_signature[i * self.rows_per_band:(i + 1) * self.rows_per_band])
-            probe_bands = self._generate_probes(band)  # Generate probe variants
-
-            for probe in probe_bands:
-                if probe in self.buckets[i]:
-                    for candidate in self.buckets[i][probe]:
-                        candidate_pairs.add(('query', candidate))
-        return candidate_pairs
-
 class UnionFind:
     def __init__(self, elements):
         self.parent = {x: x for x in elements}
@@ -105,51 +103,29 @@ def read_documents_from_directory(path):
         for filename in os.listdir(path):
             if filename.endswith(".txt"):
                 with open(os.path.join(path, filename), 'r', encoding='utf-8') as file:
-                    documents[filename] = file.read()
+                    documents[filename] = preprocess_text(file.read())
 
     elif os.path.isfile(path):
         with open(path, 'r', encoding='utf-8') as file:
             for idx, line in enumerate(file):
-                documents[f"doc_{idx}"] = line.strip()
+                documents[f"doc_{idx}"] = preprocess_text(line.strip())
     else:
         raise ValueError("The provided path is neither a directory nor a file.")
 
     return documents
 
-def lsh_improv_nearest_neighbor(query_doc, path, num_hashes=100, num_bands=20, rows_per_band=5):
-    """Improved LSH for finding nearest neighbors of a query document."""
+def lsh_near_duplicates_from_files(path, num_hashes=100, num_bands=20, rows_per_band=5):
     documents = read_documents_from_directory(path)
     minhash = MinHash(num_hashes)
-    lsh = LSH(num_bands, rows_per_band, probes=3)  # Example with multi-probe lookup
-
-    # Create signatures and apply LSH for all documents
-    signatures = {doc_id: minhash.create_signature(doc) for doc_id, doc in documents.items()}
-    for doc_id, signature in signatures.items():
-        lsh.hash_signature(doc_id, signature)
-
-    # Transform query document and get candidate pairs with multi-probe lookup
-    query_signature = minhash.create_signature(query_doc)
-    candidate_pairs = lsh.find_candidates_for_query(query_signature)
-    
-    # Extract nearest neighbors from candidate pairs
-    nearest_neighbors = [pair[1] for pair in candidate_pairs if pair[0] == 'query']
-    return nearest_neighbors
-
-def lsh_improv_near_duplicates_from_files(path, num_hashes=100, num_bands=20, rows_per_band=5):
-    """Improved LSH for detecting near-duplicate documents."""
-    documents = read_documents_from_directory(path)
-    minhash = MinHash(num_hashes)
-    lsh = LSH(num_bands, rows_per_band, probes=3)
+    lsh = LSH(num_bands, rows_per_band)
 
     # Parallelize signature creation
     with ThreadPoolExecutor() as executor:
         signatures = {doc_id: sig for doc_id, sig in zip(documents.keys(), executor.map(minhash.create_signature, documents.values()))}
 
-    # Parallelize LSH insertion
-    with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(lsh.hash_signature, doc_id, signature) for doc_id, signature in signatures.items()]
-        for future in futures:
-            future.result()  # Ensure all threads complete
+    # Insert signatures into LSH buckets
+    for doc_id, signature in signatures.items():
+        lsh.hash_signature(doc_id, signature)
 
     # Get candidate pairs and perform Union-Find
     candidate_pairs = lsh.find_candidates()
