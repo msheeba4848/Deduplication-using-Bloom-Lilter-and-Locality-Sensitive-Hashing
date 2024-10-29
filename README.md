@@ -132,34 +132,60 @@ The project is organized into the following main components:
 ## **Project Structure**
 The project is organized as follows:
 
-```
-dsan-6700-sweetgreen/
-├── README.md
-├── __pycache__
-│   ├── baseline.cpython-312.pyc
-│   └── bloom_filter.cpython-311.pyc
-├── bloom_filter_example.ipynb
-├── discussion.md
-├── docs
-    ├── bloom_filter_example.ipynb
-│   └── source
-├── poetry.lock
-├── pyproject.toml
-├── requirements.txt
-├── src
-│   └── bloom_filter.py
-└── sweetgreen
-    ├── bin
-    ├── include
-    ├── lib
-    └── pyvenv.cfg
-```
+Add structure
+
+
 
 ## **Contributing**
 - Fork the repository.
 - Create a new feature branch.
 - Make your changes.
 - Open a pull request for review.
+
+--- 
+
+### 2. Algorithmic Description
+
+## Algorithm Descriptions - Bloom Filter
+
+ADDD INFO HERE 
+
+
+## Algorithm Descriptions - LSH
+
+### 1. Baseline (LSH.py)
+The baseline version of LSH includes:
+- **MinHashing**: Generates signatures for documents by hashing shingles.
+- **Banding Technique**: Divides signatures into bands and uses hashing to identify candidate pairs likely to be near-duplicates.
+- **Union-Find Clustering**: Groups documents into clusters based on candidate pairs.
+
+### 2. Improved (lsh_improv.py)
+The improved version builds on the baseline with:
+- **Multi-Probe LSH**: Adds slight variations (probes) to band hashes, increasing candidate pairs and improving recall.
+- **Adaptive Shingle Size**: Adjusts shingle size based on document length, helping to balance similarity detection for short and long documents.
+
+### 3. Optimized (lsh_improv2.py)
+The optimized version includes further enhancements:
+- **Parallelized Execution**: Utilizes `ThreadPoolExecutor` for faster MinHash and LSH computation.
+- **Cache Optimization**: Adds caching for frequently used hashes to reduce redundant computation.
+- **Fine-Tuned Parameters**: Allows for additional tuning of banding and hash function parameters.
+
+
+## Testing 
+
+### Bloom Filter
+
+
+
+### LSH 
+
+For testing, we use 
+
+```{bash}
+pytest test/test_lsh_overall.py
+
+```
+--- 
 
 
 ## Instructions to use CLI
@@ -206,24 +232,36 @@ To use the different optimization options available in the Bloom Filter, you can
 
 These flags allow you to choose specific hash optimizations for Bloom Filter.
 
----
-
 ### 2. LSH Usage
 
-`cli_lsh.py` is the CLI script for Locality-Sensitive Hashing (LSH). Run it with the following command:
+1. **Deduplication Mode** : Identifies clusters of near-duplicate documents within a dataset.
 
-```bash
-python cli_lsh.py lsh hundred.tsv --num_hashes 100 --num_bands 20 --rows_per_band 5
+```{bash}
+# Baseline Deduplication
+PYTHONPATH=$(pwd) python src/lsh_cli.py deduplication --path data/hundred.tsv --algorithm baseline --num_hashes 100 --num_bands 20 --rows_per_band 5
+
+# Improved Deduplication
+PYTHONPATH=$(pwd) python src/lsh_cli.py deduplication --path data/hundred.tsv --algorithm improved --num_hashes 100 --num_bands 20 --rows_per_band 5
+
+# Optimized Deduplication
+PYTHONPATH=$(pwd) python src/lsh_cli.py deduplication --path data/hundred.tsv --algorithm optimized --num_hashes 100 --num_bands 20 --rows_per_band 5
 ```
 
-#### Parameter Explanation
+2. **Nearest Neighbour Mode** : Finds documents in the dataset that are most similar to a specified query document.
 
-- `hundred.tsv`: Input file or directory containing text data.
-- `--num_hashes`: Number of hash functions for MinHash signatures.
-- `--num_bands`: Number of bands in LSH.
-- `--rows_per_band`: Number of rows per band.
+```{bash}
+# Baseline Nearest Neighbors
+PYTHONPATH=$(pwd) python src/lsh_cli.py nearest_neighbors --path data/hundred.tsv --query_doc data/query_doc.txt --algorithm baseline --num_hashes 100 --num_bands 20 --rows_per_band 5
 
-This command uses LSH to detect near-duplicate documents in `hundred.tsv`.
+# Improved Nearest Neighbors
+PYTHONPATH=$(pwd) python src/lsh_cli.py nearest_neighbors --path data/hundred.tsv --query_doc data/query_doc.txt --algorithm improved --num_hashes 100 --num_bands 20 --rows_per_band 5
+
+# Optimized Nearest Neighbors
+PYTHONPATH=$(pwd) python src/lsh_cli.py nearest_neighbors --path data/hundred.tsv --query_doc data/query_doc.txt --algorithm optimized --num_hashes 100 --num_bands 20 --rows_per_band 5
+
+```
+
+---
 
 ---
 
