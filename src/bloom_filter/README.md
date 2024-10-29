@@ -23,19 +23,12 @@ This package provides an implementation of a Bloom Filter, a probabilistic data 
 │   │   │   └── main.cpython-311.pyc
 │   │   └── main.py
 │   ├── bloom_filter.py
-│   ├── data
-│   │   ├── five.tsv
-│   │   ├── hundred.tsv
-│   │   ├── hundredk.tsv
-│   │   ├── onek.tsv
-│   │   ├── tenk.tsv
-│   │   ├── thirty.tsv
-│   │   ├── thirtyk.tsv
-│   │   ├── threehundred.tsv
-│   │   └── threek.tsv
 │   ├── pytest.ini
 │   └── utils
 │       ├── __init__.py
+│       ├── __pycache__
+│       │   ├── __init__.cpython-311.pyc
+│       │   └── hashing_methods.cpython-311.pyc
 │       └── hashing_methods.py
 ├── requirements.txt
 └── tests
@@ -45,7 +38,7 @@ This package provides an implementation of a Bloom Filter, a probabilistic data 
     │   └── test_bloom_filter.cpython-311-pytest-8.3.3.pyc
     └── test_bloom_filter.py
 
-10 directories, 29 files
+10 directories, 22 files
 
 ```
 
@@ -84,7 +77,7 @@ python -m bloom_filter.bin.main --size <SIZE> --hash_count <COUNT> [--jurisdicti
 Example:
 
 ```bash
-python -m bloom_filter.bin.main --size 200 --hash_count 4 --jurisdiction --file bloom_filter/data/five.tsv
+PYTHONPATH=$(pwd) python -m bloom_filter.bin.main --size 200 --hash_count 4 --jurisdiction --file ../../data/five.tsv
 ```
 
 Available Hashing Methods
@@ -99,6 +92,10 @@ Testing
 Run the unit tests with pytest:
 
 ```bash
-pytest tests/test_bloom_filter.py
+PYTHONPATH=$(pwd) pytest tests/test_bloom_filter.py
 ```
 This runs tests on both standard and optimized Bloom Filter methods to ensure functionality across different hashing techniques.
+
+## Lessons Learned and Challenges
+
+Developing this Bloom Filter package brought valuable lessons in efficient data structure design and memory management. One key challenge was fine-tuning the hashing methods to balance speed and accuracy across large datasets. Experimenting with various hashing approaches highlighted the trade-offs between computational cost and collision reduction.
