@@ -182,6 +182,30 @@ python cli.py bloom hundred.tsv --size 100 --hash_count 3
 
 This command uses Bloom Filter to detect duplicates in the `hundred.tsv` file.
 
+#### Bloom Filter with Optimization Options
+
+To use the different optimization options available in the Bloom Filter, you can add additional flags:
+
+- **Using Kirsch-Mitzenmacher Optimization**:
+  
+  ```bash
+  python cli.py bloom hundred.tsv --size 100 --hash_count 3 --optimized
+  ```
+
+- **Using Jurisdictional Hashing**:
+
+  ```bash
+  python cli.py bloom hundred.tsv --size 100 --hash_count 3 --jurisdiction
+  ```
+
+- **Using Universal Hashing**:
+
+  ```bash
+  python cli.py bloom hundred.tsv --size 100 --hash_count 3 --universal
+  ```
+
+These flags allow you to choose specific hash optimizations for Bloom Filter.
+
 ---
 
 ### 2. LSH Usage
