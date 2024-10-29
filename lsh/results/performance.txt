@@ -1,0 +1,18 @@
+Performance Results
+====================
+
+Original LSH - Size: 100
+Runtime: 84.48 seconds
+Peak Memory Usage: 1.82 MB
+Average Jaccard Similarity: 0.95
+
+Improved LSH - Size: 100
+Runtime: 69.12 seconds
+Peak Memory Usage: 8.31 MB
+Average Jaccard Similarity: 0.95
+
+Optimized LSH - Size: 100
+Runtime: 68.16 seconds
+Peak Memory Usage: 8.84 MB
+Average Jaccard Similarity: 0.96
+
