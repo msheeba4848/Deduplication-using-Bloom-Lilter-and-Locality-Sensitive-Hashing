@@ -1,5 +1,3 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/SVDBZgP4)
-
 # **Duplicate Detection Using Bloom Filters and Locality Sensitive Hashing (LSH)**
 
 ## **Project Overview**
@@ -372,6 +370,12 @@ In terms of the performance results from `discussion.md`, we highlight that each
 ## Lessons Learnt
 
 The overall lesson learned from deduplication using LSH and Bloom filters is the importance of balancing efficiency with accuracy in large-scale data environments. Both methods excel at quickly identifying potential duplicates without requiring exhaustive pairwise comparisons, making them highly effective for large datasets. LSH is advantageous for approximate nearest-neighbor searches, grouping similar items by hashing them into buckets and detecting near-duplicates based on similarities. However, its trade-offs include potential false positives or negatives, which depend on fine-tuning parameters like hash functions and banding configurations. On the other hand, Bloom filters offer a fast, memory-efficient solution for checking whether an item exists in a set, which can be used to reduce the dataset size before applying more computationally intensive methods. Yet, Bloom filters are probabilistic, meaning they can yield false positives but not false negatives, and they work best in filtering rather than ranking similarity. Together, these methods demonstrate that efficient deduplication requires not only robust techniques but also careful consideration of data characteristics and trade-offs between memory, speed, and accuracy.
+
+---
+
+## License
+
+This project is licensed under an **All Rights Reserved** license. Unauthorized use, distribution, or modification of the code is strictly prohibited. For inquiries or permission requests, please contact [sm3924@georgetown.edu or msheeba00@gmail.com].
 
 
 ------------------------------------------------------------------------
